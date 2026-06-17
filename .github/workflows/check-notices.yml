@@ -2,7 +2,7 @@ name: Sejong Notice Checker
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # 매일 오전 10시 (KST = UTC+9)
+    - cron: '0 23 * * *'  # 매일 오전 8시 (KST = UTC+9)
   workflow_dispatch:
     inputs:
       test:
