@@ -18,6 +18,7 @@ BOARDS = [
     {'name': '컴공 학부',  'url': 'https://dept.sejong.ac.kr/cedpt/board/notice.do', 'emoji': '💻'},
     {'name': 'SW중심대학', 'url': 'https://sw.sejong.ac.kr/sw/notice.do', 'emoji': '🖥️'},
     {'name': 'ICT인턴십', 'url': 'https://global.ictintern.or.kr/board/noticeList.do', 'emoji': '🌐', 'parser': 'ict'},
+    {'name': '국립국제교육원', 'url': 'https://www.niied.go.kr/web/main/nid/niied_board/list?cp=1&sortOrder=BA_REGDATE&sortDirection=DESC&bcId=niied_board&baNotice=false&baCommSelec=false&baOpenDay=false&baUse=true', 'emoji': '🎓', 'parser': 'niied'},
 ]
 
 STATE_FILE = 'state.json'
@@ -111,6 +112,46 @@ def fetch_ict_notices(board_url):
     return notices
 
 
+def fetch_niied_notices(board_url):
+    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp.raise_for_status()
+    soup = BeautifulSoup(resp.text, 'html.parser')
+
+    notices = []
+    for row in soup.select('table tbody tr'):
+        cols = row.find_all('td')
+        if len(cols) < 3:
+            continue
+
+        num_text = cols[0].get_text(strip=True)
+        if not num_text.isdigit():
+            continue
+
+        link_tag = cols[2].find('a') or cols[1].find('a')
+        if not link_tag:
+            continue
+
+        title = link_tag.get_text(strip=True)
+        href = link_tag.get('href', '')
+
+        match = re.search(r'/niied_board/(\d+)', href)
+        if not match:
+            continue
+        article_id = match.group(1)
+
+        full_url = f'https://www.niied.go.kr{href}' if href.startswith('/') else href
+        date = cols[-2].get_text(strip=True)
+
+        notices.append({
+            'id': article_id,
+            'title': title,
+            'date': date,
+            'url': full_url,
+        })
+
+    return notices
+
+
 def send_slack(board_name, emoji, new_notices):
     blocks = [
         {
@@ -167,6 +208,8 @@ def main():
         try:
             if board.get('parser') == 'ict':
                 notices = fetch_ict_notices(board['url'])
+            elif board.get('parser') == 'niied':
+                notices = fetch_niied_notices(board['url'])
             else:
                 notices = fetch_notices(board['url'])
         except Exception as e:
