@@ -108,10 +108,22 @@ def send_slack(board_name, emoji, new_notices):
     resp.raise_for_status()
 
 
+def send_test():
+    resp = requests.post(SLACK_WEBHOOK_URL, json={
+        'text': '✅ 세종대 공지 봇 연결 테스트 성공!'
+    }, timeout=10)
+    resp.raise_for_status()
+    print('Test message sent.')
+
+
 def main():
     if not SLACK_WEBHOOK_URL:
         print('Error: SLACK_WEBHOOK_URL not set', file=sys.stderr)
         sys.exit(1)
+
+    if '--test' in sys.argv:
+        send_test()
+        return
 
     state = load_state()
     is_first_run = len(state) == 0

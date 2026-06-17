@@ -3,7 +3,12 @@ name: Sejong Notice Checker
 on:
   schedule:
     - cron: '0 1 * * *'  # 매일 오전 10시 (KST = UTC+9)
-  workflow_dispatch:      # 수동 실행 가능
+  workflow_dispatch:
+    inputs:
+      test:
+        description: 'Slack 연결 테스트만 실행'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -25,7 +30,7 @@ jobs:
       - name: Check notices
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python checker.py
+        run: python checker.py ${{ inputs.test && '--test' || '' }}
 
       - name: Commit updated state
         run: |
