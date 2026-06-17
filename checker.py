@@ -17,6 +17,7 @@ BOARDS = [
     {'name': '채용/모집', 'url': 'https://www.sejong.ac.kr/kor/intro/notice8.do', 'emoji': '📋'},
     {'name': '컴공 학부',  'url': 'https://dept.sejong.ac.kr/cedpt/board/notice.do', 'emoji': '💻'},
     {'name': 'SW중심대학', 'url': 'https://sw.sejong.ac.kr/sw/notice.do', 'emoji': '🖥️'},
+    {'name': 'ICT인턴십', 'url': 'https://global.ictintern.or.kr/board/noticeList.do', 'emoji': '🌐', 'parser': 'ict'},
 ]
 
 STATE_FILE = 'state.json'
@@ -82,6 +83,34 @@ def fetch_notices(board_url):
     return notices
 
 
+def fetch_ict_notices(board_url):
+    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp.raise_for_status()
+    soup = BeautifulSoup(resp.text, 'html.parser')
+
+    notices = []
+    for row in soup.select('table tbody tr'):
+        cols = row.find_all('td')
+        if len(cols) < 4:
+            continue
+
+        num_text = cols[0].get_text(strip=True)
+        if not num_text.isdigit():
+            continue
+
+        title = cols[2].get_text(strip=True)
+        date = cols[-1].get_text(strip=True)
+
+        notices.append({
+            'id': num_text,
+            'title': title,
+            'date': date,
+            'url': board_url,
+        })
+
+    return notices
+
+
 def send_slack(board_name, emoji, new_notices):
     blocks = [
         {
@@ -136,7 +165,10 @@ def main():
         print(f'Checking {name}...', end=' ', flush=True)
 
         try:
-            notices = fetch_notices(board['url'])
+            if board.get('parser') == 'ict':
+                notices = fetch_ict_notices(board['url'])
+            else:
+                notices = fetch_notices(board['url'])
         except Exception as e:
             print(f'ERROR: {e}')
             continue
