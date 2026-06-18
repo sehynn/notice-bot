@@ -201,6 +201,8 @@ def main():
     if is_first_run:
         print('First run — saving current state, no notifications sent')
 
+    has_new = False
+
     for board in BOARDS:
         name = board['name']
         print(f'Checking {name}...', end=' ', flush=True)
@@ -224,6 +226,7 @@ def main():
             if new_notices:
                 print(f'{len(new_notices)} new')
                 send_slack(name, board['emoji'], new_notices)
+                has_new = True
             else:
                 print('no new')
         else:
@@ -231,6 +234,9 @@ def main():
 
         state[name] = list(seen_ids | current_ids)
         time.sleep(1)
+
+    if not is_first_run and not has_new:
+        requests.post(SLACK_WEBHOOK_URL, json={'text': '오늘은 업데이트가 없어요 🙂'}, timeout=10)
 
     save_state(state)
     print('Done.')
