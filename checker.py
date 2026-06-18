@@ -17,8 +17,8 @@ BOARDS = [
     {'name': '채용/모집', 'url': 'https://www.sejong.ac.kr/kor/intro/notice8.do', 'emoji': '📋'},
     {'name': '컴공 학부',  'url': 'https://dept.sejong.ac.kr/cedpt/board/notice.do', 'emoji': '💻'},
     {'name': 'SW중심대학', 'url': 'https://sw.sejong.ac.kr/sw/notice.do', 'emoji': '🖥️'},
-    {'name': 'ICT인턴십', 'url': 'https://global.ictintern.or.kr/board/noticeList.do', 'emoji': '🌐', 'parser': 'ict'},
-    {'name': '국립국제교육원', 'url': 'https://www.niied.go.kr/web/main/nid/niied_board/list?cp=1&sortOrder=BA_REGDATE&sortDirection=DESC&bcId=niied_board&baNotice=false&baCommSelec=false&baOpenDay=false&baUse=true', 'emoji': '🎓', 'parser': 'niied'},
+    {'name': 'ICT인턴십', 'url': 'https://global.ictintern.or.kr/board/noticeList.do', 'emoji': '🌐', 'parser': 'ict', 'prefix': ''},
+    {'name': '국립국제교육원', 'url': 'https://www.niied.go.kr/web/main/nid/niied_board/list?cp=1&sortOrder=BA_REGDATE&sortDirection=DESC&bcId=niied_board&baNotice=false&baCommSelec=false&baOpenDay=false&baUse=true', 'emoji': '🎓', 'parser': 'niied', 'prefix': ''},
 ]
 
 STATE_FILE = 'state.json'
@@ -152,13 +152,13 @@ def fetch_niied_notices(board_url):
     return notices
 
 
-def send_slack(board_name, emoji, new_notices):
+def send_slack(board_name, emoji, new_notices, prefix='세종대 '):
     blocks = [
         {
             'type': 'header',
             'text': {
                 'type': 'plain_text',
-                'text': f'{emoji} 세종대 {board_name} 새 공지 {len(new_notices)}건',
+                'text': f'{emoji} {prefix}{board_name} 새 공지 {len(new_notices)}건',
                 'emoji': True,
             },
         },
@@ -225,7 +225,7 @@ def main():
             new_notices = [n for n in notices if n['id'] not in seen_ids]
             if new_notices:
                 print(f'{len(new_notices)} new')
-                send_slack(name, board['emoji'], new_notices)
+                send_slack(name, board['emoji'], new_notices, board.get('prefix', '세종대 '))
                 has_new = True
             else:
                 print('no new')
