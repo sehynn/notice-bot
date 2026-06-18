@@ -17,6 +17,7 @@ BOARDS = [
     {'name': '채용/모집', 'url': 'https://www.sejong.ac.kr/kor/intro/notice8.do', 'emoji': '📋'},
     {'name': '컴공 학부',  'url': 'https://dept.sejong.ac.kr/cedpt/board/notice.do', 'emoji': '💻'},
     {'name': 'SW중심대학', 'url': 'https://sw.sejong.ac.kr/sw/notice.do', 'emoji': '🖥️'},
+    {'name': '세종뉴스룸', 'url': 'https://pr.sejong.ac.kr/news/today/sejong-prism.do?mode=list&articleLimit=10&article.offset=0', 'emoji': '📰', 'parser': 'pr'},
     {'name': 'ICT글로벌', 'url': 'https://global.ictintern.or.kr/board/noticeList.do', 'emoji': '🌐', 'parser': 'ict', 'prefix': ''},
     {'name': '국립국제교육원', 'url': 'https://www.niied.go.kr/web/main/nid/niied_board/list?cp=1&sortOrder=BA_REGDATE&sortDirection=DESC&bcId=niied_board&baNotice=false&baCommSelec=false&baOpenDay=false&baUse=true', 'emoji': '🎓', 'parser': 'niied', 'prefix': ''},
 ]
@@ -73,6 +74,44 @@ def fetch_notices(board_url):
         full_url = base + href if href.startswith('?') else href
 
         date = cols[2].get_text(strip=True)
+
+        notices.append({
+            'id': article_id,
+            'title': title,
+            'date': date,
+            'url': full_url,
+        })
+
+    return notices
+
+
+def fetch_pr_notices(board_url):
+    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp.raise_for_status()
+    soup = BeautifulSoup(resp.text, 'html.parser')
+
+    notices = []
+    seen_ids = set()
+    for tag in soup.find_all('a', href=True):
+        href = tag.get('href', '')
+        match = re.search(r'articleNo=(\d+)', href)
+        if not match:
+            continue
+        article_id = match.group(1)
+        if article_id in seen_ids:
+            continue
+        seen_ids.add(article_id)
+
+        title = tag.get_text(strip=True)
+        if not title:
+            continue
+
+        base = board_url.split('?')[0]
+        full_url = base + href if href.startswith('?') else href
+
+        parent_text = tag.parent.get_text(' ', strip=True) if tag.parent else ''
+        date_match = re.search(r'(\d{4}\.\d{2}\.\d{2})', parent_text)
+        date = date_match.group(1) if date_match else ''
 
         notices.append({
             'id': article_id,
@@ -208,7 +247,9 @@ def main():
         print(f'Checking {name}...', end=' ', flush=True)
 
         try:
-            if board.get('parser') == 'ict':
+            if board.get('parser') == 'pr':
+                notices = fetch_pr_notices(board['url'])
+            elif board.get('parser') == 'ict':
                 notices = fetch_ict_notices(board['url'])
             elif board.get('parser') == 'niied':
                 notices = fetch_niied_notices(board['url'])
