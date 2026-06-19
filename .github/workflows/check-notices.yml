@@ -2,8 +2,11 @@ name: Sejong Notice Checker
 
 on:
   schedule:
-    - cron: '0 4 * * *'   # 매일 오후 1시 KST
-    - cron: '0 9 * * *'   # 매일 오후 6시 KST
+    - cron: '0 4 * * *'   # 매일 오후 1시 KST (production)
+    - cron: '0 9 * * *'   # 매일 오후 6시 KST (production)
+  push:
+    branches:
+      - test
   workflow_dispatch:
     inputs:
       test:
@@ -30,7 +33,7 @@ jobs:
 
       - name: Check notices
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ github.ref == 'refs/heads/test' && secrets.SLACK_WEBHOOK_URL_TEST || secrets.SLACK_WEBHOOK_URL }}
         run: python main.py ${{ inputs.test && '--test' || '' }}
 
       - name: Commit updated state
