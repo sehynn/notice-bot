@@ -51,12 +51,8 @@ def fetch_notices(board_url):
     notices = []
     for row in soup.select('table tbody tr'):
         cols = row.find_all('td')
-        if len(cols) < 3:
+        if len(cols) < 4:
             continue
-
-        num_text = cols[0].get_text(strip=True)
-        if not num_text.isdigit():
-            continue  # skip pinned rows
 
         link_tag = cols[1].find('a')
         if not link_tag:
@@ -73,7 +69,7 @@ def fetch_notices(board_url):
         base = board_url.split('?')[0]
         full_url = base + href if href.startswith('?') else href
 
-        date = cols[2].get_text(strip=True)
+        date = cols[3].get_text(strip=True)
 
         notices.append({
             'id': article_id,
