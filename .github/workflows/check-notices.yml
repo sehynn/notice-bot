@@ -31,7 +31,7 @@ jobs:
       - name: Check notices
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: python checker.py ${{ inputs.test && '--test' || '' }}
+        run: python main.py ${{ inputs.test && '--test' || '' }}
 
       - name: Commit updated state
         run: |
