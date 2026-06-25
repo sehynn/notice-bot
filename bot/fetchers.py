@@ -224,6 +224,39 @@ def fetch_worldjob_notices(board_url):
     return notices
 
 
+def fetch_kosaf_notices(board_url):
+    """한국장학재단 — 4열(번호/제목/날짜/조회), seqNo를 ID로 사용."""
+    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp.raise_for_status()
+    soup = BeautifulSoup(resp.text, 'html.parser')
+
+    notices = []
+    for row in soup.select('table tbody tr'):
+        cols = row.find_all('td')
+        if len(cols) < 3:
+            continue
+
+        link_tag = cols[1].find('a')
+        if not link_tag:
+            continue
+
+        title = link_tag.get_text(strip=True)
+        href = link_tag.get('href', '')
+
+        match = re.search(r'seqNo=(\d+)', href)
+        if not match:
+            continue
+        article_id = match.group(1)
+
+        base = board_url.split('?')[0]
+        full_url = base + href if href.startswith('?') else href
+        date = cols[2].get_text(strip=True)
+
+        notices.append({'id': article_id, 'title': title, 'date': date, 'url': full_url})
+
+    return notices
+
+
 def fetch_wevity_notices(board_url):
     """wevity.com 공모전 — ul.list li 구조, ix를 ID로 사용. 날짜 대신 D-day 표시."""
     resp = requests.get(board_url, headers=HEADERS, timeout=15)
@@ -265,6 +298,7 @@ PARSER_MAP = {
     'dept5': fetch_dept5_notices,
     'worldjob': fetch_worldjob_notices,
     'wevity': fetch_wevity_notices,
+    'kosaf': fetch_kosaf_notices,
 }
 
 

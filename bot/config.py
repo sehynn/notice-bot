@@ -30,4 +30,5 @@ BOARDS = [
     {'name': '해외인턴십', 'url': 'https://www.worldjob.or.kr/info/bbs/internnotice/list.do?menuId=1000006476', 'emoji': '✈️', 'parser': 'worldjob', 'prefix': ''},
     {'name': '월드잡', 'url': 'https://www.worldjob.or.kr/info/bbs/notice/list.do?menuId=1000006475', 'emoji': '🌍', 'parser': 'worldjob', 'prefix': ''},
     {'name': '위비티 공모전', 'url': 'https://www.wevity.com/index.php?c=find&s=1&gub=1&cidx=20', 'emoji': '🏅', 'parser': 'wevity', 'prefix': ''},
+    {'name': '한국장학재단', 'url': 'https://www.kosaf.go.kr/ko/notice.do?ctgrId1=&ctgrId2=&searchStr=&searchType=&page=1&pg=PTKONotice_List', 'emoji': '💰', 'parser': 'kosaf', 'prefix': ''},
 ]
