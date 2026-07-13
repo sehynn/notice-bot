@@ -11,5 +11,5 @@ demo version : 세종대학교 학사/취업/장학/국제교류 공지, 컴퓨�
 -  타학교 공지 추가 및 학교별 채널 분리 
 
 
-### 입장 링크
+### 링크
 https://join.slack.com/t/w1781685939-hgd391754/shared_invite/zt-418rd8vxt-OJMWh8PpRJYBQh14UtppFw
