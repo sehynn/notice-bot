@@ -32,9 +32,10 @@ def main():
             continue
 
         current_ids = {n['id'] for n in notices}
+        is_new_board = name not in current_state
         seen_ids = set(current_state.get(name, []))
 
-        if not is_first_run:
+        if not is_new_board:
             new_notices = [n for n in notices if n['id'] not in seen_ids]
             if new_notices:
                 print(f'{len(new_notices)} new')
@@ -43,7 +44,7 @@ def main():
             else:
                 print('no new')
         else:
-            print(f'{len(notices)} notices saved')
+            print(f'{len(notices)} notices saved (new board)')
 
         current_state[name] = list(seen_ids | current_ids)
         time.sleep(1)
