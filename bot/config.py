@@ -18,7 +18,7 @@ BOARDS = [
     {'name': '취업',     'url': 'https://www.sejong.ac.kr/kor/intro/notice6.do', 'emoji': '💼'},
     {'name': '장학',     'url': 'https://www.sejong.ac.kr/kor/intro/notice7.do', 'emoji': '💰'},
     {'name': '채용/모집', 'url': 'https://www.sejong.ac.kr/kor/intro/notice8.do', 'emoji': '📋'},
-    {'name': '컴공 학부',  'url': 'https://dept.sejong.ac.kr/cedpt/board/notice.do', 'emoji': '💻'},
+    {'name': '컴공 학부',  'url': 'https://dept.sejong.ac.kr/cedpt/board/notice.do', 'emoji': '💻', 'parser': 'dept5'},
     {'name': '컴공 취업뉴스', 'url': 'https://dept.sejong.ac.kr/cedpt/intro/professor001.do?mode=list&&articleLimit=10&article.offset=0', 'emoji': '💼', 'parser': 'cedpt_intro'},
     {'name': '컴공 공모전', 'url': 'https://dept.sejong.ac.kr/cedpt/intro/contestcompetition.do', 'emoji': '🏆', 'parser': 'cedpt_intro'},
     {'name': 'AI·DS 학부', 'url': 'https://dept.sejong.ac.kr/aidsdpt/board/undergraduate-notice.do?mode=list&&articleLimit=10&article.offset=0', 'emoji': '🤖', 'parser': 'dept5'},
