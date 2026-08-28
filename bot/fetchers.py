@@ -9,12 +9,15 @@ from .config import HEADERS
 
 
 class LegacyCipherAdapter(HTTPAdapter):
-    """일부 학교 사이트(sw.sejong.ac.kr 등)가 OpenSSL 3.x 기본 보안레벨(SECLEVEL=2)에서
-    거부되는 구형 TLS1.2 암호 스위트만 지원해 handshake failure가 나는 문제 우회."""
+    """dept/sw/pr.sejong.ac.kr(Oracle 계열 구형 스택)는 ECDHE 계열을 전혀 지원하지 않고
+    forward secrecy 없는 static-RSA 스위트(AES256-SHA)만 지원한다. Python의 기본
+    SSLContext는 이 스위트를 정책적으로 배제해 handshake failure가 난다.
+    보안레벨 전체를 낮추는 대신, 그 계열 스위트 하나만 기본 목록에 추가해 우회한다."""
 
     def init_poolmanager(self, *args, **kwargs):
         ctx = ssl.create_default_context()
-        ctx.set_ciphers('DEFAULT@SECLEVEL=1')
+        default_ciphers = ':'.join(c['name'] for c in ctx.get_ciphers())
+        ctx.set_ciphers(default_ciphers + ':AES256-SHA')
         kwargs['ssl_context'] = ctx
         return super().init_poolmanager(*args, **kwargs)
 
