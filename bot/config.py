@@ -23,7 +23,7 @@ BOARDS = [
     {'name': '컴공 공모전', 'url': 'https://dept.sejong.ac.kr/cedpt/intro/contestcompetition.do', 'emoji': '🏆', 'parser': 'cedpt_intro'},
     {'name': 'AI·DS 학부', 'url': 'https://dept.sejong.ac.kr/aidsdpt/board/undergraduate-notice.do?mode=list&&articleLimit=10&article.offset=0', 'emoji': '🤖', 'parser': 'dept5'},
     {'name': '소웨학부', 'url': 'https://dept.sejong.ac.kr/softwaredpt/board/notice.do?mode=list&&articleLimit=10&article.offset=0', 'emoji': '🖥️', 'parser': 'dept5'},
-    {'name': 'SW중심대학', 'url': 'https://sw.sejong.ac.kr/sw/notice.do', 'emoji': '🖥️'},
+    {'name': 'SW중심대학', 'url': 'https://sw.sejong.ac.kr/sw/notice.do?mode=list&&articleLimit=10&article.offset=0', 'emoji': '🖥️', 'parser': 'cedpt_intro'},
     {'name': '세종뉴스룸', 'url': 'https://pr.sejong.ac.kr/news/today/sejong-prism.do?mode=list&articleLimit=10&article.offset=0', 'emoji': '📰', 'parser': 'pr'},
     {'name': 'ICT글로벌', 'url': 'https://global.ictintern.or.kr/board/noticeList.do', 'emoji': '🌐', 'parser': 'ict', 'prefix': ''},
     {'name': '국립국제교육원', 'url': 'https://www.niied.go.kr/web/main/nid/niied_board/list?cp=1&sortOrder=BA_REGDATE&sortDirection=DESC&bcId=niied_board&baNotice=false&baCommSelec=false&baOpenDay=false&baUse=true', 'emoji': '🎓', 'parser': 'niied', 'prefix': ''},

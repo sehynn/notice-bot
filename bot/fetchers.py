@@ -1,13 +1,33 @@
 import re
+import ssl
 
 import requests
 from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter
 
 from .config import HEADERS
 
 
+class LegacyCipherAdapter(HTTPAdapter):
+    """dept/sw/pr.sejong.ac.kr(Oracle 계열 구형 스택)는 ECDHE 계열을 전혀 지원하지 않고
+    forward secrecy 없는 static-RSA 스위트(AES256-SHA)만 지원한다. Python의 기본
+    SSLContext는 이 스위트를 정책적으로 배제해 handshake failure가 난다.
+    보안레벨 전체를 낮추는 대신, 그 계열 스위트 하나만 기본 목록에 추가해 우회한다."""
+
+    def init_poolmanager(self, *args, **kwargs):
+        ctx = ssl.create_default_context()
+        default_ciphers = ':'.join(c['name'] for c in ctx.get_ciphers())
+        ctx.set_ciphers(default_ciphers + ':AES256-SHA')
+        kwargs['ssl_context'] = ctx
+        return super().init_poolmanager(*args, **kwargs)
+
+
+_session = requests.Session()
+_session.mount('https://', LegacyCipherAdapter())
+
+
 def fetch_notices(board_url):
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -39,7 +59,7 @@ def fetch_notices(board_url):
 
 
 def fetch_pr_notices(board_url):
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -72,7 +92,7 @@ def fetch_pr_notices(board_url):
 
 
 def fetch_ict_notices(board_url):
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -95,7 +115,7 @@ def fetch_ict_notices(board_url):
 
 
 def fetch_niied_notices(board_url):
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -131,7 +151,7 @@ def fetch_niied_notices(board_url):
 
 def fetch_cedpt_intro_notices(board_url):
     """cedpt/intro/ 게시판 — 4열(번호/제목/등록일/조회수), 날짜가 cols[2]."""
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -164,7 +184,7 @@ def fetch_cedpt_intro_notices(board_url):
 
 def fetch_dept5_notices(board_url):
     """5열(번호/분류/제목/등록일/조회수) 학과 게시판 — 제목 cols[2], 날짜 cols[3]."""
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -197,7 +217,7 @@ def fetch_dept5_notices(board_url):
 
 def fetch_worldjob_notices(board_url):
     """worldjob.or.kr — a.bbs-list-item 구조, bbscttNo를 ID로 사용."""
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -226,7 +246,7 @@ def fetch_worldjob_notices(board_url):
 
 def fetch_kosaf_notices(board_url):
     """한국장학재단 — 4열(번호/제목/날짜/조회), seqNo를 ID로 사용."""
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -259,7 +279,7 @@ def fetch_kosaf_notices(board_url):
 
 def fetch_wevity_notices(board_url):
     """wevity.com 공모전 — ul.list li 구조, ix를 ID로 사용. 날짜 대신 D-day 표시."""
-    resp = requests.get(board_url, headers=HEADERS, timeout=15)
+    resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
