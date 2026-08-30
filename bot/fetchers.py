@@ -115,21 +115,14 @@ def fetch_ict_notices(board_url):
 
 
 def fetch_niied_notices(board_url):
+    """국립국제교육원 — 사이트 리뉴얼로 테이블 대신 ul.board-list > li 구조 사용."""
     resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
     notices = []
-    for row in soup.select('table tbody tr'):
-        cols = row.find_all('td')
-        if len(cols) < 3:
-            continue
-
-        num_text = cols[0].get_text(strip=True)
-        if not num_text.isdigit():
-            continue
-
-        link_tag = cols[2].find('a') or cols[1].find('a')
+    for li in soup.select('ul.board-list > li'):
+        link_tag = li.select_one('a.tit')
         if not link_tag:
             continue
 
@@ -142,7 +135,8 @@ def fetch_niied_notices(board_url):
         article_id = match.group(1)
 
         full_url = f'https://www.niied.go.kr{href}' if href.startswith('/') else href
-        date = cols[-2].get_text(strip=True)
+        date_tag = li.select_one('span.date')
+        date = date_tag.get_text(strip=True) if date_tag else ''
 
         notices.append({'id': article_id, 'title': title, 'date': date, 'url': full_url})
 
