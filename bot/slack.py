@@ -40,3 +40,10 @@ def send_test():
 def send_no_updates():
     resp = requests.post(SLACK_WEBHOOK_URL, json={'text': '오늘은 업데이트가 없어요 🙂'}, timeout=10)
     resp.raise_for_status()
+
+
+def send_errors(errors):
+    lines = [f'• *{name}*: `{message[:150]}`' for name, message in errors]
+    text = f'⚠️ 공지 수집 실패 {len(errors)}건 — 다음 실행에서 다시 확인해요\n' + '\n'.join(lines)
+    resp = requests.post(SLACK_WEBHOOK_URL, json={'text': text}, timeout=10)
+    resp.raise_for_status()
