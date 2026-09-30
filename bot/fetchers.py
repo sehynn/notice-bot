@@ -4,6 +4,7 @@ import ssl
 import requests
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from .config import HEADERS
 
@@ -22,8 +23,18 @@ class LegacyCipherAdapter(HTTPAdapter):
         return super().init_poolmanager(*args, **kwargs)
 
 
+# 연결 오류·읽기 타임아웃·5xx만 재시도한다. 403 같은 4xx는 재시도해도 결과가 같다.
+# raise_on_status=False: 재시도 소진 시 마지막 응답을 그대로 돌려줘 raise_for_status()가 HTTPError로 처리한다.
+_retry = Retry(
+    total=2,
+    backoff_factor=2,
+    status_forcelist=(500, 502, 503, 504),
+    allowed_methods=frozenset(['GET']),
+    raise_on_status=False,
+)
+
 _session = requests.Session()
-_session.mount('https://', LegacyCipherAdapter())
+_session.mount('https://', LegacyCipherAdapter(max_retries=_retry))
 
 
 def fetch_notices(board_url):
