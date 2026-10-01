@@ -23,6 +23,7 @@ def main():
 
     for board in config.BOARDS:
         name = board['name']
+        key = board.get('state_key', name)
         print(f'Checking {name}...', end=' ', flush=True)
 
         try:
@@ -32,8 +33,8 @@ def main():
             continue
 
         current_ids = {n['id'] for n in notices}
-        is_new_board = name not in current_state
-        seen_ids = set(current_state.get(name, []))
+        is_new_board = key not in current_state
+        seen_ids = set(current_state.get(key, []))
 
         if not is_new_board:
             new_notices = [n for n in notices if n['id'] not in seen_ids]
@@ -46,7 +47,7 @@ def main():
         else:
             print(f'{len(notices)} notices saved (new board)')
 
-        current_state[name] = list(seen_ids | current_ids)
+        current_state[key] = list(seen_ids | current_ids)
         time.sleep(1)
 
     if not is_first_run and not has_new:
