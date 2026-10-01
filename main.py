@@ -20,6 +20,7 @@ def main():
         print('First run — saving current state, no notifications sent')
 
     has_new = False
+    errors = []
 
     for board in config.BOARDS:
         name = board['name']
@@ -29,6 +30,7 @@ def main():
             notices = fetchers.fetch(board)
         except Exception as e:
             print(f'ERROR: {e}')
+            errors.append((name, str(e)))
             continue
 
         current_ids = {n['id'] for n in notices}
@@ -49,7 +51,10 @@ def main():
         current_state[name] = list(seen_ids | current_ids)
         time.sleep(1)
 
-    if not is_first_run and not has_new:
+    if errors:
+        slack.send_errors(errors)
+
+    if not is_first_run and not has_new and not errors:
         slack.send_no_updates()
 
     state.save(current_state)
