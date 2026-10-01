@@ -318,4 +318,8 @@ PARSER_MAP = {
 
 def fetch(board):
     parser = PARSER_MAP.get(board.get('parser'), fetch_notices)
-    return parser(board['url'])
+    notices = parser(board['url'])
+    # 파서는 셀렉터가 안 맞으면 예외 없이 빈 리스트를 돌려준다. 사이트 개편으로 깨진 걸 '새 글 없음'과 구분한다.
+    if not notices:
+        raise ValueError('수집 결과 0건 — 사이트 구조가 바뀌어 파서가 깨졌을 수 있음')
+    return notices
