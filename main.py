@@ -21,6 +21,7 @@ def main():
 
     has_new = False
     errors = []
+    slack_failed = False
 
     for board in config.BOARDS:
         name = board['name']
@@ -41,7 +42,14 @@ def main():
             new_notices = [n for n in notices if n['id'] not in seen_ids]
             if new_notices:
                 print(f'{len(new_notices)} new')
-                slack.send_slack(name, board['emoji'], new_notices, board.get('prefix', '세종대 '))
+                try:
+                    slack.send_slack(name, board['emoji'], new_notices, board.get('prefix', '세종대 '))
+                except Exception as e:
+                    # 이 게시판 state는 갱신하지 않아 다음 실행에서 다시 보낸다
+                    print(f'  Slack ERROR: {e}')
+                    errors.append((name, f'Slack 전송 실패: {e}'))
+                    slack_failed = True
+                    continue
                 has_new = True
             else:
                 print('no new')
@@ -51,14 +59,24 @@ def main():
         current_state[name] = list(seen_ids | current_ids)
         time.sleep(1)
 
-    if errors:
-        slack.send_errors(errors)
-
-    if not is_first_run and not has_new and not errors:
-        slack.send_no_updates()
-
+    # 요약 메시지 전송이 실패해도 이미 보낸 알림이 다시 나가지 않도록 먼저 저장한다
     state.save(current_state)
+
+    try:
+        if errors:
+            slack.send_errors(errors)
+
+        if not is_first_run and not has_new and not errors:
+            slack.send_no_updates()
+    except Exception as e:
+        print(f'Slack ERROR: {e}')
+        slack_failed = True
+
     print('Done.')
+
+    if slack_failed:
+        # Slack으로는 알릴 수 없으니 job 실패로 드러낸다 (state 커밋 단계는 if: always()로 계속 실행)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
