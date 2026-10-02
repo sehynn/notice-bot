@@ -92,24 +92,32 @@ def fetch_pr_notices(board_url):
 
 
 def fetch_ict_notices(board_url):
+    """ICT글로벌 — 목록 번호는 글 삭제 시 다시 매겨지므로, 행 onclick의 notiIdx를 ID로 사용."""
     resp = _session.get(board_url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, 'html.parser')
 
     notices = []
+    seen_ids = set()
     for row in soup.select('table tbody tr'):
+        match = re.search(r'notiIdx=(\d+)', row.get('onclick', ''))
+        if not match:
+            continue
+        article_id = match.group(1)
+        # 상단 고정 공지는 일반 목록에도 같은 글이 한 번 더 나온다
+        if article_id in seen_ids:
+            continue
+        seen_ids.add(article_id)
+
         cols = row.find_all('td')
         if len(cols) < 4:
             continue
 
-        num_text = cols[0].get_text(strip=True)
-        if not num_text.isdigit():
-            continue
-
         title = cols[2].get_text(strip=True)
         date = cols[-1].get_text(strip=True)
+        full_url = f'https://global.ictintern.or.kr/board/noticeView.do?notiIdx={article_id}'
 
-        notices.append({'id': num_text, 'title': title, 'date': date, 'url': board_url})
+        notices.append({'id': article_id, 'title': title, 'date': date, 'url': full_url})
 
     return notices
 
