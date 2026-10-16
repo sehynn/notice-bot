@@ -25,7 +25,9 @@ BOARDS = [
     {'name': '소웨학부', 'url': 'https://dept.sejong.ac.kr/softwaredpt/board/notice.do?mode=list&&articleLimit=10&article.offset=0', 'emoji': '🖥️', 'parser': 'dept5'},
     {'name': 'SW중심대학', 'url': 'https://sw.sejong.ac.kr/sw/notice.do?mode=list&&articleLimit=10&article.offset=0', 'emoji': '🖥️', 'parser': 'cedpt_intro'},
     {'name': '세종뉴스룸', 'url': 'https://pr.sejong.ac.kr/news/today/sejong-prism.do?mode=list&articleLimit=10&article.offset=0', 'emoji': '📰', 'parser': 'pr'},
-    {'name': 'ICT글로벌', 'url': 'https://global.ictintern.or.kr/board/noticeList.do', 'emoji': '🌐', 'parser': 'ict', 'prefix': ''},
+    {'name': 'ICT글로벌', 'url': 'https://global.ictintern.or.kr/board/noticeList.do', 'emoji': '🌐', 'parser': 'ict', 'prefix': '',
+     # ID를 목록 번호에서 notiIdx로 바꾸면서 기존 state와 섞이지 않도록 새 키에 baseline부터 다시 쌓는다
+     'state_key': 'ICT글로벌:notiIdx'},
     {'name': '국립국제교육원', 'url': 'https://www.niied.go.kr/web/main/nid/niied_board/list?cp=1&sortOrder=BA_REGDATE&sortDirection=DESC&bcId=niied_board&baNotice=false&baCommSelec=false&baOpenDay=false&baUse=true', 'emoji': '🎓', 'parser': 'niied', 'prefix': ''},
     {'name': '해외인턴십', 'url': 'https://www.worldjob.or.kr/info/bbs/internnotice/list.do?menuId=1000006476', 'emoji': '✈️', 'parser': 'worldjob', 'prefix': ''},
     {'name': '월드잡', 'url': 'https://www.worldjob.or.kr/info/bbs/notice/list.do?menuId=1000006475', 'emoji': '🌍', 'parser': 'worldjob', 'prefix': ''},
