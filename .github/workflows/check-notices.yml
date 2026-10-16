@@ -2,8 +2,8 @@ name: Sejong Notice Checker
 
 on:
   schedule:
-    - cron: '0 4 * * *'   # 매일 오후 1시 KST (production)
-    - cron: '0 9 * * *'   # 매일 오후 6시 KST (production)
+    - cron: '17 4 * * *'  # 매일 오후 1시 17분 KST (production) — 정각은 부하가 몰려 지연·누락이 잦아 피한다
+    - cron: '17 9 * * *'  # 매일 오후 6시 17분 KST (production)
   push:
     branches:
       - test
