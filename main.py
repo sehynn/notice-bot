@@ -46,7 +46,7 @@ def main():
         else:
             print(f'{len(notices)} notices saved (new board)')
 
-        current_state[name] = list(seen_ids | current_ids)
+        current_state[name] = sorted(seen_ids | current_ids)
         time.sleep(1)
 
     if not is_first_run and not has_new:
